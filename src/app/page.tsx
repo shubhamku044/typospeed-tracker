@@ -1,6 +1,7 @@
 'use client';
 import { generateSentence } from '@/components/utils';
 import { useEffect, useState } from 'react';
+import { CursorArrowRippleIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 
 enum LetterStatus {
   CURRENT,
@@ -15,6 +16,7 @@ export default function Home() {
   const [userInput, setUserInput] = useState<string>('');
   const [wordStatus, setWordStatus] = useState<Array<Array<LetterStatus>>>([]);
   const [sentenceStatus, setSentenceStatus] = useState<Array<string>>([]);
+  const [isInputFocused, setIsInputFocused] = useState(false);
 
   const generateInitialWordStatus = (sentenceArr: string[]) => sentenceArr.map(() => []);
 
@@ -22,11 +24,15 @@ export default function Home() {
     const newSentence = generateSentence();
     setSentence(newSentence);
     setWordStatus(generateInitialWordStatus(newSentence));
-  }, []);
 
-  useEffect(() => {
-    // console.log(currWordIndex, userInput, wordStatus);
-  }, [currWordIndex, userInput, wordStatus]);
+    if (newSentence.length > 0) {
+      setWordStatus((prev) => {
+        const firstWordStatus = [...(new Array(newSentence[0].length).fill(LetterStatus.UNREACHED))];
+        firstWordStatus[0] = LetterStatus.CURRENT;
+        return [firstWordStatus, ...prev.slice(1)];
+      });
+    }
+  }, []);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.value === ' ') return;
@@ -48,7 +54,10 @@ export default function Home() {
 
     setWordStatus((prev) => [...prev.slice(0, currWordIndex), newWordStatus, ...prev.slice(currWordIndex + 1)]);
   };
+
   const handleSpacePress = () => {
+    // Check correctness of the whole sentence
+
     // Move to the next word
     setCurrWordIndex((prev) => Math.min(prev + 1, sentence.length - 1));
     setUserInput('');
@@ -57,10 +66,15 @@ export default function Home() {
     setWordStatus((prev) => {
       const updatedWordStatus = prev.map((statusArray, index) => {
         if (index === currWordIndex) {
-          // If the word is correct, mark all letters as correct
-          return statusArray.map(
-            (status) => (status === LetterStatus.CURRENT ? LetterStatus.UNREACHED : status)
-          );
+          const indexOfZero = statusArray.indexOf(0);
+          if (indexOfZero !== -1) statusArray.fill(LetterStatus.WRONG, indexOfZero);
+          return statusArray;
+        } else if (index === currWordIndex + 1) {
+          const arr = [LetterStatus.CURRENT,
+            ...(Array(sentence[currWordIndex + 1].length - 1).fill(LetterStatus.UNREACHED))
+          ];
+          console.log(arr);
+          return arr;
         } else {
           return statusArray;
         }
@@ -73,9 +87,9 @@ export default function Home() {
   const getWordStyle = (letterStatus: LetterStatus): string => {
     switch (letterStatus) {
       case LetterStatus.CURRENT:
-        return 'bg-gray-800 text-white';
+        return 'bg-gray-600 text-white';
       case LetterStatus.CORRECT:
-        return 'text-green-300';
+        return 'text-white';
       case LetterStatus.WRONG:
         return 'text-red-500';
       case LetterStatus.UNREACHED:
@@ -87,7 +101,9 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center">
-      <div className="flex min-h-[12rem] w-[52rem] flex-wrap gap-2 rounded-lg border-2 border-white p-12 text-2xl tracking-wider text-gray-700">
+      <div
+        className="relative flex min-h-[12rem] w-full max-w-5xl flex-wrap gap-2 overflow-hidden rounded-lg p-12 text-2xl tracking-wider text-gray-700"
+      >
         {sentence?.map((word: string, idx: number) => {
           return (
             <div key={idx}>
@@ -104,19 +120,27 @@ export default function Home() {
             </div>
           );
         })}
+        <div
+          className={`absolute left-0 top-0 z-10 flex h-full w-full items-center justify-center gap-2 ${isInputFocused ? 'hidden backdrop-blur-0' : 'bg-transparent backdrop-blur-sm'} text-xl text-white`}
+        >
+          <CursorArrowRippleIcon className="w-6" />
+          <p>Click here to start typing</p>
+        </div>
+        <input
+          className="absolute left-0 top-0 z-20 h-full w-full cursor-default border-none bg-transparent text-transparent outline-none"
+          value={userInput}
+          onChange={handleInputChange}
+          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+            if (e.key === ' ') {
+              handleSpacePress();
+            }
+          }}
+          onFocus={() => setIsInputFocused(true)}
+          onBlur={() => setIsInputFocused(false)}
+        />
       </div>
-      <input
-        className="text-black"
-        value={userInput}
-        onChange={handleInputChange}
-        onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-          if (e.key === ' ') {
-            handleSpacePress();
-          }
-        }}
-      />
       <button
-        className="mt-14 rounded-lg bg-blue-600 px-4 py-2 font-semibold"
+        className="mt-14 px-4 py-2"
         onClick={() => {
           const newSentence = generateSentence();
           setSentence(newSentence);
@@ -126,7 +150,7 @@ export default function Home() {
           setWordStatus(generateInitialWordStatus(newSentence));
         }}
       >
-        Generate
+        <ArrowPathIcon className="w-8 text-gray-200" />
       </button>
     </main>
   );
