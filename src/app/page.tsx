@@ -73,7 +73,6 @@ export default function Home() {
           const arr = [LetterStatus.CURRENT,
             ...(Array(sentence[currWordIndex + 1].length - 1).fill(LetterStatus.UNREACHED))
           ];
-          console.log(arr);
           return arr;
         } else {
           return statusArray;
