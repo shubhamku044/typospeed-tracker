@@ -50,7 +50,6 @@ export default function Home() {
           : LetterStatus.UNREACHED;
       }
     });
-    console.log(newWordStatus);
 
     setWordStatus((prev) => [...prev.slice(0, currWordIndex), newWordStatus, ...prev.slice(currWordIndex + 1)]);
   };
@@ -151,6 +150,6 @@ export default function Home() {
       >
         <ArrowPathIcon className="w-8 text-gray-200" />
       </button>
-    </main>
+    </main >
   );
 }
