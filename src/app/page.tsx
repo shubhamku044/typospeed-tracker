@@ -9,45 +9,93 @@ enum LetterStatus {
   WRONG,
 };
 
-type TCurrWord = [number, number];
-
 export default function Home() {
-  const [sentence, setSentence] = useState<Array<string>>();
-  const [typed, setTyped] = useState<Array<string>>();
-  const [currWord, setCurrWord] = useState<TCurrWord>([0, 0]);
-  const [sentenceStatus, setSentenceStatus] = useState<Array<Array<[number, number, LetterStatus]>>>([]);
-  const [currStatus, setCurrStatus] = useState<[number, number, LetterStatus]>([0, 0, LetterStatus.CURRENT]);
+  const [sentence, setSentence] = useState<Array<string>>([]);
+  const [currWordIndex, setCurrWordIndex] = useState<number>(0);
+  const [userInput, setUserInput] = useState<string>('');
+  const [wordStatus, setWordStatus] = useState<Array<Array<LetterStatus>>>([]);
+  const [sentenceStatus, setSentenceStatus] = useState<Array<string>>([]);
+
+  const generateInitialWordStatus = (sentenceArr: string[]) => sentenceArr.map(() => []);
 
   useEffect(() => {
-    const ourSentence = generateSentence();
-    setSentence(generateSentence);
-    setSentenceStatus(new Array(ourSentence.length).fill([]));
+    const newSentence = generateSentence();
+    setSentence(newSentence);
+    setWordStatus(generateInitialWordStatus(newSentence));
   }, []);
 
-  /* const getWordStyle = () => {
-    switch (currWord[2]) {
+  useEffect(() => {
+    // console.log(currWordIndex, userInput, wordStatus);
+  }, [currWordIndex, userInput, wordStatus]);
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.value === ' ') return;
+    const input = event.target.value;
+    setUserInput(input);
+
+    const newWordStatus = sentence[currWordIndex]?.split('').map((letter, i) => {
+      if (i === input.length) {
+        return LetterStatus.CURRENT;
+      } else {
+        return i < input.length
+          ? letter === input[i]
+            ? LetterStatus.CORRECT
+            : LetterStatus.WRONG
+          : LetterStatus.UNREACHED;
+      }
+    });
+    console.log(newWordStatus);
+
+    setWordStatus((prev) => [...prev.slice(0, currWordIndex), newWordStatus, ...prev.slice(currWordIndex + 1)]);
+  };
+  const handleSpacePress = () => {
+    // Move to the next word
+    setCurrWordIndex((prev) => Math.min(prev + 1, sentence.length - 1));
+    setUserInput('');
+
+    // Update the word status
+    setWordStatus((prev) => {
+      const updatedWordStatus = prev.map((statusArray, index) => {
+        if (index === currWordIndex) {
+          // If the word is correct, mark all letters as correct
+          return statusArray.map(
+            (status) => (status === LetterStatus.CURRENT ? LetterStatus.UNREACHED : status)
+          );
+        } else {
+          return statusArray;
+        }
+      });
+
+      return updatedWordStatus;
+    });
+  };
+
+  const getWordStyle = (letterStatus: LetterStatus): string => {
+    switch (letterStatus) {
       case LetterStatus.CURRENT:
-        return '';
+        return 'bg-gray-800 text-white';
       case LetterStatus.CORRECT:
-        return '';
+        return 'text-green-300';
       case LetterStatus.WRONG:
         return 'text-red-500';
       case LetterStatus.UNREACHED:
+        return 'text-gray-700';
+      default:
         return '';
     }
-  }; */
+  };
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center">
-      <div className="flex min-h-[12rem] w-[52rem] flex-wrap gap-2 rounded-lg border-2 border-white p-12 text-2xl tracking-wider">
-        {sentence?.map((word, idx) => {
+      <div className="flex min-h-[12rem] w-[52rem] flex-wrap gap-2 rounded-lg border-2 border-white p-12 text-2xl tracking-wider text-gray-700">
+        {sentence?.map((word: string, idx: number) => {
           return (
             <div key={idx}>
               {word.split('').map((l, idx2) => {
                 return (
                   <span
                     key={`${idx}.${idx2}`}
-                    className={`${(idx === currWord[0] && idx2 === currWord[1]) ? 'bg-gray-800 text-white' : 'text-gray-700'}`}
+                    className={getWordStyle(wordStatus[idx][idx2])}
                   >
                     {l}
                   </span>
@@ -59,18 +107,23 @@ export default function Home() {
       </div>
       <input
         className="text-black"
-        onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => {
-          const writingWord = [currWord[0], currWord[1], LetterStatus.CURRENT];
-          if (e.code === 'Space') setCurrWord(prvWord => [prvWord[0] + 1, 0]);
-          if (e.key === (sentence as Array<string>)[currWord[0]][currWord[1]]) {
-            setCurrWord(prvWord => [prvWord[0], prvWord[1] + 1]);
+        value={userInput}
+        onChange={handleInputChange}
+        onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+          if (e.key === ' ') {
+            handleSpacePress();
           }
         }}
       />
       <button
         className="mt-14 rounded-lg bg-blue-600 px-4 py-2 font-semibold"
         onClick={() => {
-          setSentence(generateSentence());
+          const newSentence = generateSentence();
+          setSentence(newSentence);
+          setCurrWordIndex(0);
+          setUserInput('');
+          setSentenceStatus([]);
+          setWordStatus(generateInitialWordStatus(newSentence));
         }}
       >
         Generate
