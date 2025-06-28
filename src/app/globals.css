@@ -2,6 +2,318 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --background: #0f172a;
+  --foreground: #cbd5e1;
+  --primary: #3b82f6;
+  --secondary: #8b5cf6;
+  --accent: #10b981;
+  --muted: #475569;
+  --card: #1e293b;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
 body {
-  @apply bg-zinc-800;
+  max-width: 100vw;
+  overflow-x: hidden;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+body {
+  color: rgb(var(--foreground));
+  background: linear-gradient(to bottom, #0f172a, #1e293b);
+  min-height: 100vh;
+}
+
+/* Custom cursor blink animation */
+@keyframes cursor-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.cursor-blink {
+  animation: cursor-blink 1s infinite;
+}
+
+/* Smooth focus ring */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 focus:ring-offset-gray-900;
+}
+
+/* Character hover effects */
+.char-hover:hover {
+  transform: scale(1.05);
+  transition: transform 0.1s ease-in-out;
+}
+
+/* Typing test specific styles */
+.typing-text {
+  line-height: 1.8;
+  letter-spacing: 0.02em;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* Disable text selection on UI elements */
+.no-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Gradient text effect */
+.gradient-text {
+  background: linear-gradient(45deg, #fbbf24, #f59e0b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Button pulse animation */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(251, 191, 36, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+  }
+}
+
+.pulse-glow:hover {
+  animation: pulse-glow 2s infinite;
+}
+
+/* Typing area glow effect */
+.typing-area-glow {
+  box-shadow: 0 0 0 1px rgba(251, 191, 36, 0.2);
+  transition: box-shadow 0.3s ease;
+}
+
+.typing-area-glow.focused {
+  box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.4), 0 0 20px rgba(251, 191, 36, 0.1);
+}
+
+/* Character animation styles */
+.char-correct {
+  background-color: rgba(34, 197, 94, 0.2);
+  color: rgb(243, 244, 246);
+  border-radius: 3px;
+  padding: 1px 2px;
+  margin: 0 1px;
+}
+
+.char-incorrect {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: rgb(248, 113, 113);
+  border-radius: 3px;
+  padding: 1px 2px;
+  margin: 0 1px;
+}
+
+.char-current {
+  background-color: rgba(251, 191, 36, 0.3);
+  color: rgb(243, 244, 246);
+  border-radius: 3px;
+  padding: 1px 2px;
+  margin: 0 1px;
+  animation: cursor-blink 1s infinite;
+}
+
+.char-untyped {
+  color: rgb(107, 114, 128);
+}
+
+/* Stats animation */
+.stat-bounce {
+  animation: bounce 0.3s ease-in-out;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* Modal backdrop */
+.modal-backdrop {
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+}
+
+/* Loading animation */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Responsive typography */
+@media (max-width: 768px) {
+  .typing-text {
+    font-size: 1.5rem;
+    line-height: 1.6;
+  }
+  
+  .typing-container {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .typing-text {
+    font-size: 1.25rem;
+    line-height: 1.5;
+  }
+  
+  .typing-container {
+    padding: 1rem;
+  }
+}
+
+/* Focus styles for accessibility */
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid rgb(251, 191, 36);
+  outline-offset: 2px;
+}
+
+/* Hide Grammarly and other text editor overlays */
+[data-gramm="false"] {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Ensure proper text rendering */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Selection */
+::selection {
+  background: rgba(59, 130, 246, 0.3);
+  color: #e2e8f0;
+}
+
+/* Focus outline */
+*:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Smooth cursor animation */
+@keyframes cursor-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.cursor-blink {
+  animation: cursor-blink 1s infinite;
+}
+
+/* Character animations */
+.char {
+  position: relative;
+  transition: all 0.15s ease-out;
+}
+
+.char.correct {
+  color: #e2e8f0;
+}
+
+.char.incorrect {
+  color: #f87171;
+  background-color: rgba(248, 113, 113, 0.1);
+  border-radius: 3px;
+}
+
+.char.current {
+  background-color: rgba(59, 130, 246, 0.2);
+  border-radius: 3px;
+}
+
+/* Smooth transitions */
+.transition-smooth {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Glow effects */
+.glow-blue {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+}
+
+.glow-purple {
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+}
+
+/* Button hover effects */
+.btn-primary {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+/* Loading animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out forwards;
+}
+
+/* Text container improvements */
+.typing-container {
+  background: rgba(30, 41, 59, 0.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(59, 130, 246, 0.1);
+}
+
+/* Stats display */
+.stats-display {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  backdrop-filter: blur(10px);
 }
